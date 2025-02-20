@@ -1,4 +1,4 @@
-﻿namespace E_Commerce.Server.Entity
+﻿namespace E_Commerce.Server.Models.Entity
 {
     public class OrderItem
     {

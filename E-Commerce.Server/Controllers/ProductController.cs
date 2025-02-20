@@ -1,8 +1,10 @@
 ﻿using E_Commerce.Server.Context;
-using E_Commerce.Server.Entity;
+using E_Commerce.Server.Models.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace E_Commerce.Server.Controllers
 {
@@ -19,10 +21,40 @@ namespace E_Commerce.Server.Controllers
 
         // product list - /api/product
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetProducts()
         {
-            var products = await _context.Products.ToListAsync();
-            return Ok(products);
+            try
+            {
+                // Kullanıcı kimliğini al (JWT içinden)
+                var identity = HttpContext.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.Claims.Any())
+                {
+                    return Unauthorized("Token çözülemedi.");
+                }
+
+                // Kullanıcı bilgilerini log'a yazdır
+                var userId = identity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userEmail = identity.FindFirst(ClaimTypes.Email)?.Value;
+                var userRole = identity.FindFirst(ClaimTypes.Role)?.Value;
+
+                Console.WriteLine($"Token Bilgileri - UserId: {userId}, Email: {userEmail}, Role: {userRole}");
+
+                // Eğer userId boşsa yetkilendirme başarısızdır
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("Kullanıcı kimliği alınamadı.");
+                }
+
+                // Veritabanından ürünleri getir
+                var products = await _context.Products.ToListAsync();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Token doğrulama hatası: {ex.Message}");
+                return Unauthorized("Token doğrulanamadı.");
+            }
         }
 
         // get product detail - /api/product/1

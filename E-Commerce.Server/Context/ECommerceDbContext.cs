@@ -1,4 +1,4 @@
-﻿using E_Commerce.Server.Entity;
+﻿using E_Commerce.Server.Models.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce.Server.Context
@@ -7,9 +7,10 @@ namespace E_Commerce.Server.Context
     {
         public ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : base(options) { }
 
-        public DbSet<Product> Products{ get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
